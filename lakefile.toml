@@ -1,0 +1,15 @@
+name = "MusicNotation"
+version = "0.1.0"
+defaultTargets = ["musicnotation"]
+
+[[require]]
+name = "LeanSearchClient"
+git = "https://github.com/leanprover-community/LeanSearchClient"
+rev = "main"
+
+[[lean_lib]]
+name = "MusicNotation"
+
+[[lean_exe]]
+name = "musicnotation"
+root = "Main"

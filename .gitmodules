@@ -1,0 +1,6 @@
+[submodule "Chess.lean"]
+	path = Chess.lean
+	url = https://github.com/dwrensha/Chess.lean
+[submodule "lean4-maze"]
+	path = lean4-maze
+	url = https://github.com/dwrensha/lean4-maze

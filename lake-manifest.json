@@ -1,0 +1,15 @@
+{"version": "1.1.0",
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"url": "https://github.com/leanprover-community/LeanSearchClient",
+   "type": "git",
+   "subDir": null,
+   "scope": "",
+   "rev": "8d29bc2c3ebe1f863c2f02df816b4f3dd1b65226",
+   "name": "LeanSearchClient",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": "main",
+   "inherited": false,
+   "configFile": "lakefile.toml"}],
+ "name": "MusicNotation",
+ "lakeDir": ".lake"}
