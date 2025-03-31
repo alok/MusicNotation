@@ -10,7 +10,7 @@ build:
 
 # Run the main program
 run:
-    lake exe MusicNotation
+    lake exe musicnotation
 
 # Build and run in one command
 build-run: build run
@@ -24,7 +24,7 @@ rebuild: clean build
 
 # Run examples
 examples: build
-    lake exe MusicNotation
+    lake exe musicnotation
 
 # Format the Lean code
 format:
@@ -32,8 +32,8 @@ format:
 
 # Create commit
 commit MESSAGE:
-    jj commit -m "{{MESSAGE}}"
+    git commit -m "{{MESSAGE}}"
 
 # Push commits
 push:
-    jj git push 
+    git push 
