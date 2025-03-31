@@ -1,17 +1,29 @@
-# Music Notation System
+# Music Notation System 𝄞 ♯ ♭ 𝄆 𝄇 𝄚
 
-A pure functional music notation system implemented in Lean 4. This system provides data structures and functions to represent and manipulate musical scores with Unicode-based notation.
+A pure functional music notation system implemented in Lean 4. This system provides data structures and functions to represent and manipulate musical scores with beautiful Unicode-based notation.
 
 ## Features
 
 - Core data structures for representing music notation:
-  - Notes, pitches, durations, and rests
-  - Measures, staves, and scores
-  - Clefs, key signatures, and time signatures
+  - Notes, pitches, durations, and rests (𝅝, 𝅗𝅥, 𝅘𝅥, 𝅘𝅥𝅮, 𝄾)
+  - Measures, staves, and scores (𝄚, 𝄀, 𝄁)
+  - Clefs, key signatures, and time signatures (𝄞, 𝄢, 𝄠, ♯, ♭, ♮)
 - Convenient constructors for creating musical elements
 - Helper functions for common musical patterns (scales, chords)
-- String formatting for visualization with Unicode support (♯, ♭, 𝄞, etc.)
+- String formatting for visualization with comprehensive Unicode support
 - Standalone module for independent usage
+
+## Unicode Font Compatibility
+
+For the best visual experience with musical notation, use one of these fonts:
+
+- **Bravura** - Comprehensive SMuFL-compliant music font
+- **Noto Music** - Google's font with good musical symbol support
+- **DejaVu Sans** - Open source font with decent music symbol support
+- **STIX Two** - Scientific and technical font with music symbols
+- **MusGlyphs** - Specialized music font
+
+Most modern terminals and code editors support these symbols, but results may vary by environment.
 
 ## Getting Started
 
@@ -37,7 +49,7 @@ just build-run  # Build and run in one command
 
 ## Example Usage
 
-Creating a C major scale:
+Creating a C major scale with Unicode notation:
 
 ```lean
 import MusicNotation.Notation
@@ -45,7 +57,7 @@ import MusicNotation.Notation
 open MusicNotation
 
 def myScale : Staff := 
-  staff .treble cMajor [measure (cMajorScale 4 .quarter) commonTime]
+  staff .treble (key c♮ .major) [measure (cMajorScale 4 .♩) 4⁄4]
 ```
 
 Creating a chord progression:
@@ -56,11 +68,23 @@ import MusicNotation.Notation
 open MusicNotation
 
 def myChordProgression : Staff := Id.run do
-  let cMeasure := measure (cChord 4 .quarter) commonTime
-  let fMeasure := measure (fChord 4 .quarter) commonTime
-  let gMeasure := measure (gChord 4 .quarter) commonTime
+  let cMeasure := measure (chord c♮ e♮ g♮ 4 .♩) 4⁄4
+  let fMeasure := measure (chord f♮ a♮ c♮ 4 .♩) 4⁄4
+  let gMeasure := measure (chord g♮ b♮ d♮ 4 .♩) 4⁄4
   
-  return staff .treble cMajor [cMeasure, fMeasure, gMeasure, cMeasure]
+  return staff 𝄞 (key c♮ .major) [cMeasure, fMeasure, gMeasure, cMeasure]
+```
+
+Rich visualization output:
+
+```
+𝄞 ♮ 4/4 
+| 𝅘𝅥 C4 𝅘𝅥 D4 𝅘𝅥 E4 𝅘𝅥 F4 | 
+| 𝅘𝅥 G4 𝅘𝅥 A4 𝅘𝅥 B4 𝅘𝅥 C5 |
+
+𝄢 ♮ 4/4
+| 𝅗𝅥 C3 𝅗𝅥 G3       |
+| 𝅗𝅥 F3 𝅗𝅥 C3       |
 ```
 
 ## Project Structure
