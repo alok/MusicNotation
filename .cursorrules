@@ -135,3 +135,5 @@ example : 3 ≤ 5 := by
 ```
 
 ```
+
+use unicode notation for more literal notes as much as possible. i want the actual staff notation. the maze file @Maze.lean gives an example in how a maze is a top row, middle row*, bottom row. staff can be alternating bars of `-` char or the little notes in unicode. make sure to write down examples of the notation in #eval blocks

@@ -4,4 +4,4 @@ import MusicNotation.Examples
 def main : IO Unit := do
   IO.println "Music Notation System"
   IO.println "--------------------"
-  MusicNotation.Examples.printExamples
+  MusicNotation.Examples.printAllExamples

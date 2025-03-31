@@ -4,13 +4,12 @@ import Lean
 /-!
 # MusicNotation.Notation
 
-This module defines convenient constructors and functions for music notation,
-providing a more direct programmatic interface than raw constructors.
+This module provides the implementation of Unicode-based staff notation.
 -/
 
 namespace MusicNotation
 
-/-- Create a note with common parameters -/
+/-- Create a musical note -/
 def note (name : NoteName) (acc : Accidental := .natural)
     (octave : Nat := 4) (dur : Duration := .quarter) : MusicalElement :=
   makeNote name acc octave dur
@@ -47,55 +46,79 @@ def b (octave : Nat := 4) (dur : Duration := .quarter) (acc : Accidental := .nat
 def rest (dur : Duration := .quarter) : MusicalElement :=
   makeRest dur
 
-/-- Create a measure with given elements and time signature -/
-def measure (elements : List MusicalElement) (timeSignature : TimeSignature := commonTime) : Measure :=
-  { elements := elements, timeSignature := timeSignature }
-
-/-- Create a staff with the given properties -/
-def staff (clef : Clef) (keySignature : KeySignature) (measures : List Measure) : Staff :=
-  { clef := clef, keySignature := keySignature, measures := measures }
-
-/-- Create a score with given properties -/
-def score (title : String := "") (composer : String := "") (staves : List Staff) : Score :=
-  { title := title, composer := composer, staves := staves }
-
-/-- Helper to create a sequence of same notes with same parameters -/
-def repeatNote (element : MusicalElement) (count : Nat) : List MusicalElement :=
-  List.replicate count element
-
-/-- Helper to create a C major scale starting at the given octave -/
+/-- Helper to create a C major scale -/
 def cMajorScale (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
   [c octave dur, d octave dur, e octave dur, f octave dur,
    g octave dur, a octave dur, b octave dur, c (octave+1) dur]
 
-/-- Create F sharp note -/
+/-- F# note -/
 def fSharp (octave : Nat := 4) (dur : Duration := .quarter) : MusicalElement :=
   f octave dur .sharp
 
-/-- Helper to create a G major scale starting at the given octave -/
+/-- G major scale -/
 def gMajorScale (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
   [g octave dur, a octave dur, b octave dur, c (octave+1) dur,
    d (octave+1) dur, e (octave+1) dur, fSharp (octave+1) dur, g (octave+1) dur]
 
-/-- Create B flat note -/
+/-- Bb note -/
 def bFlat (octave : Nat := 4) (dur : Duration := .quarter) : MusicalElement :=
   b octave dur .flat
 
-/-- Helper to create a F major scale starting at the given octave -/
+/-- F major scale -/  
 def fMajorScale (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
   [f octave dur, g octave dur, a octave dur, bFlat octave dur,
    c (octave+1) dur, d (octave+1) dur, e (octave+1) dur, f (octave+1) dur]
 
-/-- Create a C major chord -/
-def cChord (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
-  [c octave dur, e octave dur, g octave dur]
+/-- Create string for horizontal line of staff -/
+def staffHorizontalLine (width : Nat) : String :=
+  String.mk (List.replicate width '─')
 
-/-- Create a G major chord -/
-def gChord (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
-  [g octave dur, b octave dur, d (octave+1) dur]
+/-- Create a top line for a staff -/
+def createStaffTopLine (width : Nat) : StaffLine :=
+  { elements := ["┌" ++ staffHorizontalLine width ++ "┐"] }
 
-/-- Create a F major chord -/
-def fChord (octave : Nat := 4) (dur : Duration := .quarter) : List MusicalElement :=
-  [f octave dur, a octave dur, c (octave+1) dur]
+/-- Create a bottom line for a staff -/
+def createStaffBottomLine (width : Nat) : StaffLine :=
+  { elements := ["└" ++ staffHorizontalLine width ++ "┘"] }
+
+/-- Convert a musical element to a unicode string for staff notation -/
+def musicalElementToStaffString : MusicalElement → String
+| .note n => 
+  let pitchStr := noteNameToString n.pitch.name ++ 
+                 (if n.pitch.accidental != .natural then accidentalToString n.pitch.accidental else "") ++ 
+                 toString n.pitch.octave
+  durationToString n.duration ++ pitchStr
+| .rest r => "𝄽" ++ durationToString r.duration
+
+/-- Create a middle line for a staff with musical elements -/
+def createStaffMiddleLine (elements : List MusicalElement) : StaffLine :=
+  let elementStrings := elements.map musicalElementToStaffString
+  let barStart := "│"
+  let barEnd := "│"
+  let content := String.intercalate " " elementStrings
+  { elements := [barStart ++ content ++ barEnd] }
+
+/-- Create a complete staff with given elements -/
+def createStaff (clef : Clef) (elements : List MusicalElement) : Staff :=
+  let middleLine := createStaffMiddleLine elements
+  let width := (String.length (middleLine.elements.head!)) - 2 -- Subtract 2 for the vertical bars
+  {
+    clef := clef,
+    topLine := createStaffTopLine width,
+    middleLines := [middleLine],
+    bottomLine := createStaffBottomLine width
+  }
+
+/-- Format a staff as a string for display -/
+def formatStaff (staff : Staff) : String :=
+  let clefStr := clefToString staff.clef
+  let topLineStr := staff.topLine.elements.head!
+  let middleLinesStr := String.intercalate "\n" (staff.middleLines.map (·.elements.head!))
+  let bottomLineStr := staff.bottomLine.elements.head!
+  
+  -- Insert clef at the beginning of the middle line
+  let middleLinesWithClef := "│" ++ clefStr ++ middleLinesStr.drop 1
+  
+  topLineStr ++ "\n" ++ middleLinesWithClef ++ "\n" ++ bottomLineStr
 
 end MusicNotation

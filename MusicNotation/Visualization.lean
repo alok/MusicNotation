@@ -1,114 +1,94 @@
 import MusicNotation.Basic
-import Lean
+import MusicNotation.Notation
 
 /-!
 # MusicNotation.Visualization
 
-This module provides string conversion functions to visualize music notation in a
-human-readable format.
+This module provides string formatting functions and more complex staff rendering with multiple lines.
 -/
 
 namespace MusicNotation
 
-/-- Convert a NoteNane to a string representation -/
-def noteNameToString : NoteName → String
-| .C => "C"
-| .D => "D"
-| .E => "E"
-| .F => "F"
-| .G => "G"
-| .A => "A"
-| .B => "B"
+/-- Render multiple staffs as a multi-line string -/
+def renderMultipleStaffs (staffs : List Staff) : String :=
+  String.intercalate "\n\n" (staffs.map formatStaff)
 
-/-- Convert an Accidental to a string representation -/
-def accidentalToString : Accidental → String
-| .natural => "♮"
-| .sharp => "♯"
-| .flat => "♭"
-| .doubleSharp => "𝄪"
-| .doubleFlat => "𝄫"
+/-- Create a "prettier" staff with 5 staff lines using Unicode box-drawing characters -/
+def createStandardStaff (clef : Clef) (elements : List MusicalElement) : String :=
+  let noteStr := String.intercalate " " (elements.map musicalElementToStaffString)
+  let width := noteStr.length + 10  -- Add some padding
+  let clefStr := clefToString clef
+  let staffLine := String.mk (List.replicate width '─')
+  
+  "┌" ++ staffLine ++ "┐\n" ++
+  "│ " ++ clefStr ++ " " ++ noteStr ++ "   │\n" ++
+  "└" ++ staffLine ++ "┘"
 
-/-- Convert a Duration to a string representation -/
-def durationToString : Duration → String
-| .whole => "𝅝"
-| .half => "𝅗𝅥"
-| .quarter => "𝅘𝅥"
-| .eighth => "𝅘𝅥𝅮"
-| .sixteenth => "𝅘𝅥𝅯"
-| .thirtySecond => "𝅘𝅥𝅰"
-| .dotted d => durationToString d ++ "."
-| .triplet d => "³(" ++ durationToString d ++ ")"
+/-- Creates a C major scale staff with standard notation -/
+def cMajorScaleStaff : String :=
+  createStandardStaff .treble (cMajorScale 4 .quarter)
 
-/-- Convert a Pitch to a string representation -/
-def pitchToString (p : Pitch) : String :=
-  noteNameToString p.name ++ accidentalToString p.accidental ++ p.octave.repr
+/-- Creates a G major scale staff with standard notation -/
+def gMajorScaleStaff : String :=
+  createStandardStaff .treble (gMajorScale 4 .quarter)
 
-/-- Convert a Note to a string representation -/
-def noteToString (n : Note) : String :=
-  pitchToString n.pitch ++ durationToString n.duration
+/-- Creates an F major scale staff with standard notation -/
+def fMajorScaleStaff : String :=
+  createStandardStaff .treble (fMajorScale 4 .quarter)
 
-/-- Convert a Rest to a string representation -/
-def restToString (r : Rest) : String :=
-  "𝄽" ++ durationToString r.duration
+/-- Creates a staff with Twinkle Twinkle Little Star -/
+def twinkleTwinkleStaff : String := Id.run do
+  let elements := [
+    c 4 .quarter, c 4 .quarter, g 4 .quarter, g 4 .quarter,
+    a 4 .quarter, a 4 .quarter, g 4 .half,
+    f 4 .quarter, f 4 .quarter, e 4 .quarter, e 4 .quarter,
+    d 4 .quarter, d 4 .quarter, c 4 .half
+  ]
+  
+  createStandardStaff .treble elements
 
-/-- Convert a MusicalElement to a string representation -/
-def musicalElementToString : MusicalElement → String
-| .note n => noteToString n
-| .rest r => restToString r
+/-- Create a staff showing different durations -/
+def durationExampleStaff : String := Id.run do
+  let elements := [
+    c 4 .whole,
+    d 4 .half,
+    e 4 .quarter,
+    f 4 .eighth,
+    g 4 .sixteenth,
+    rest .quarter
+  ]
+  
+  createStandardStaff .treble elements
 
-/-- Convert a TimeSignature to a string representation -/
-def timeSignatureToString (t : TimeSignature) : String :=
-  s!"{t.beats}/{t.beatValue}"
+/-- Create a staff showing different accidentals -/
+def accidentalExampleStaff : String := Id.run do
+  let elements := [
+    c 4 .quarter,
+    c 4 .quarter .sharp,
+    d 4 .quarter .flat,
+    f 4 .quarter .natural,
+    g 4 .quarter .doubleSharp,
+    a 4 .quarter .doubleFlat
+  ]
+  
+  createStandardStaff .treble elements
 
-/-- Convert a KeySignature to a string representation -/
-def keySignatureToString (k : KeySignature) : String :=
-  if k.sharps == 0 then
-    "C"
-  else if k.sharps > 0 then
-    let keys := ["C", "G", "D", "A", "E", "B", "F♯"]
-    keys[k.sharps.toNat - 1]!
-  else
-    let keys := ["F", "B♭", "E♭", "A♭", "D♭", "G♭", "C♭"]
-    keys[(-k.sharps).toNat - 1]!
-
-/-- Convert a Clef to a string representation -/
-def clefToString : Clef → String
-| .treble => "𝄞"
-| .bass => "𝄢"
-| .alto => "𝄡"
-| .tenor => "𝄡"  -- Same symbol as alto but positioned differently
-
-/-- Format a measure for display -/
-def formatMeasure (m : Measure) : String := Id.run do
-  let mut result := "|"
-  for element in m.elements do
-    result := result ++ " " ++ musicalElementToString element ++ " "
-  result := result ++ "|"
-  result
-
-/-- Format a staff for display -/
-def formatStaff (s : Staff) : String := Id.run do
-  let mut result := clefToString s.clef ++ " " ++ keySignatureToString s.keySignature ++ " "
-
-  -- Get time signature from first measure if available
-  if let some m := s.measures.head? then
-    result := result ++ timeSignatureToString m.timeSignature ++ "\n"
-  else
-    result := result ++ "\n"
-
-  -- Format all measures
-  for m in s.measures do
-    result := result ++ formatMeasure m ++ " "
-
-  result
-
-/-- Format a score for display -/
-def formatScore (score : Score) : String := Id.run do
-  let mut result := s!"Title: {score.title}\nComposer: {score.composer}\n\n"
-
-  for staff in score.staves do
-    result := result ++ formatStaff staff ++ "\n\n"
-
-  result
+/-- Create a staff showing different clefs -/
+def clefExampleStaff : String := Id.run do
+  let elements := [c 4 .quarter, d 4 .quarter, e 4 .quarter]
+  let trebleStaff := createStandardStaff .treble elements
+  let bassStaff := createStandardStaff .bass elements
+  let altoStaff := createStandardStaff .alto elements
+  
+  trebleStaff ++ "\n\n" ++ bassStaff ++ "\n\n" ++ altoStaff
 
 end MusicNotation
+
+-- Examples that can be evaluated
+#eval MusicNotation.cMajorScaleStaff
+#eval MusicNotation.gMajorScaleStaff
+#eval MusicNotation.fMajorScaleStaff
+#eval MusicNotation.twinkleTwinkleStaff
+#eval MusicNotation.durationExampleStaff
+#eval MusicNotation.accidentalExampleStaff
+#eval MusicNotation.clefExampleStaff

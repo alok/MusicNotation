@@ -1,3 +1,4 @@
--- This module serves as the root of the `MusicNotation` library.
--- Import modules here that should be built as part of the library.
+-- Root module for MusicNotation library
 import MusicNotation.Basic
+import MusicNotation.Notation
+import MusicNotation.Visualization
