@@ -1,0 +1,36 @@
+# MusicNotation Justfile
+# Core commands and patterns for the project
+
+# Default recipe to display help information
+default:
+    @just --list
+
+# Build the project
+build:
+    lake build
+
+# Run the tests
+test:
+    lake build MusicNotation.UnicodeStaff
+    lean --run MusicNotation/Tests.lean
+
+# Build and run examples
+examples:
+    lake build MusicNotation.UnicodeStaff
+    lean --run MusicNotation/Examples.lean
+
+# Clean the project build artifacts
+clean:
+    lake clean
+
+# Format Lean files
+fmt:
+    find MusicNotation -name "*.lean" -exec lean --run scripts/format.lean {} \;
+
+# Check if the code is properly formatted
+check-fmt:
+    find MusicNotation -name "*.lean" -exec lean --run scripts/check-format.lean {} \;
+
+# Generate documentation
+docs:
+    lake doc 
