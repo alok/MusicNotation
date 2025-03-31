@@ -1,6 +1,6 @@
 # Music Notation System
 
-A pure functional music notation system implemented in Lean 4. This system provides data structures and functions to represent and manipulate musical scores.
+A pure functional music notation system implemented in Lean 4. This system provides data structures and functions to represent and manipulate musical scores with Unicode-based notation.
 
 ## Features
 
@@ -10,7 +10,8 @@ A pure functional music notation system implemented in Lean 4. This system provi
   - Clefs, key signatures, and time signatures
 - Convenient constructors for creating musical elements
 - Helper functions for common musical patterns (scales, chords)
-- String formatting for visualization
+- String formatting for visualization with Unicode support (♯, ♭, 𝄞, etc.)
+- Standalone module for independent usage
 
 ## Getting Started
 
@@ -23,7 +24,15 @@ A pure functional music notation system implemented in Lean 4. This system provi
 
 ```bash
 lake build
-lake exe MusicNotation
+lake exe musicnotation
+```
+
+Or use Just commands:
+
+```bash
+just build
+just run
+just build-run  # Build and run in one command
 ```
 
 ## Example Usage
@@ -60,6 +69,17 @@ def myChordProgression : Staff := Id.run do
 - `MusicNotation/Notation.lean`: Convenient constructors and helpers
 - `MusicNotation/Visualization.lean`: String conversion for visualization
 - `MusicNotation/Examples.lean`: Example usages and demonstrations
+- `MusicNotation/Standalone.lean`: Independent module for standalone usage
+
+## Development
+
+Use the Justfile for common development tasks:
+
+```bash
+just format  # Format code according to Lean style guide
+just clean   # Clean build artifacts
+just rebuild # Clean and rebuild the project
+```
 
 ## License
 
